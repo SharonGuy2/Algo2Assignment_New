@@ -1,0 +1,4 @@
+﻿  Source.cpp
+D:\source\repos\SharonGuy2\Algo2Assignment_New\AlgoAssignment\AlgoAssignment\Source.cpp(147,13): warning C4326: return type of 'main' should be 'int' instead of 'void'
+D:\source\repos\SharonGuy2\Algo2Assignment_New\AlgoAssignment\AlgoAssignment\Source.cpp(149,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  AlgoAssignment.vcxproj -> D:\source\repos\SharonGuy2\Algo2Assignment_New\AlgoAssignment\Debug\AlgoAssignment.exe
