@@ -1,51 +1,3 @@
-# Algo2Assignment_New
-Algo2Assignment_New
-
-1st assignment in Algo2 course
-
-// BFS algorithm in C++
-
-#include #include
-
-using namespace std;
-
-class Graph { int numVertices; list* adjLists; bool* visited;
-
-public: Graph(int vertices); void addEdge(int src, int dest); void BFS(int startVertex); };
-
-// Create a graph with given vertices, // and maintain an adjacency list Graph::Graph(int vertices) { numVertices = vertices; adjLists = new list[vertices]; }
-
-// Add edges to the graph void Graph::addEdge(int src, int dest) { adjLists[src].push_back(dest); adjLists[dest].push_back(src); }
-
-// BFS algorithm void Graph::BFS(int startVertex) { visited = new bool[numVertices]; for (int i = 0; i < numVertices; i++) visited[i] = false;
-
-list queue;
-
-visited[startVertex] = true; queue.push_back(startVertex);
-
-list::iterator i;
-
-while (!queue.empty()) { int currVertex = queue.front(); cout << "Visited " << currVertex << " "; queue.pop_front();
-
-for (i = adjLists[currVertex].begin(); i != adjLists[currVertex].end(); ++i) {
-  int adjVertex = *i;
-  if (!visited[adjVertex]) {
-    visited[adjVertex] = true;
-    queue.push_back(adjVertex);
-  }
-}
-} }
-
-int main() { Graph g(4); g.addEdge(0, 1); g.addEdge(0, 2); g.addEdge(1, 2); g.addEdge(2, 0); g.addEdge(2, 3); g.addEdge(3, 3);
-
-g.BFS(2);
-
-return 0; }
-
-
-
-**Adding Working Source.cpp content as README text for Backup:**
-
 #include <iostream>
 #include <time.h>
 #include <stdlib.h> 
@@ -171,8 +123,8 @@ public:
 	}
 	void addEdge(int v, int w)
 	{
-		myGraph[v].push_back(w); // Add w to vâ€™s list.
-		myGraph[w].push_back(v); // Add v to wâ€™s list
+		myGraph[v].push_back(w); // Add w to v’s list.
+		myGraph[w].push_back(v); // Add v to w’s list
 		cout << " v=" << v << " to " << w << "\n";
 		cout << " w=" << w << " to " << v << "\n";
 	}
