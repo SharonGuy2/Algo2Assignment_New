@@ -7,6 +7,7 @@ using namespace std;
 #include <list>
 #include <fstream>
 //#define p1 0.02   //double prob;	
+//testing push
 
 class Graph {
 	int vertices;
