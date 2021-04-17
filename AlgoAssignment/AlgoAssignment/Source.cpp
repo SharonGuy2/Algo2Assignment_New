@@ -1,17 +1,21 @@
+/*Assigned By:
+Netanel Iluz, ID 205856354
+Sharon Guy, ID 316582691
+*/
+
+
 #include <iostream>
 #include <time.h>
 #include <stdlib.h> 
-//#include <algorithm>
-using namespace std;
 #include <vector>
 #include <list>
 #include <fstream>
-double pThresh1[10] = { 0.0048,0.0053,0.0059,0.0065,0.0069,0.0072,0.008,0.009,0.01,0.01401 };	//for 1000 vertices
-double pThresh2[10] = { 0.091,0.1,0.103,0.115,0.1175,0.12,0.125,0.13,0.135,0.14 };	 //for 1000 vertices
-void printCSV(int option, double* connectedArr, double* isolatedArr, double* diameterArr);
+using namespace std;
+double pThresh1[10] = { 0.0048,0.0053,0.0059,0.0065,0.0069,0.0072,0.008,0.009,0.01,0.01401 };	// For 1000 vertices connectivity
+double pThresh2[10] = { 0.091,0.1,0.103,0.115,0.1175,0.12,0.125,0.13,0.135,0.14 };	 // For 1000 vertices diameter
+double pThresh3[10] = { 0.0046,0.005343,0.005599,0.006631,0.00691,0.007231,0.0084,0.0093,0.0123,0.01469 }; // For 1000 vertices Isolated vertex
+void printCSV(int option, int ver, int amount, double* connectedArr, double* isolatedArr, double* diameterArr);
 void calcFunc(int option, int ver, int amount);
-
-
 
 class Graph {
 	int vertices;
@@ -21,25 +25,18 @@ public:
 		myGraph.resize(ver);
 		this->vertices = ver;
 	}
-
-	Graph() {
-		myGraph.resize(1000);
-	}
-
 	~Graph() {
 		myGraph.clear();
-		//need to delete the graphs (delete the "New"!)
 	}
-
 	void graph_random_build(double prob);
 	void addEdge(int v, int w);
 	bool isIsolated(Graph& graph);
 	int diameter(Graph& graph);
-	bool BFS(int s, int numOfV,int* distances);
+	bool BFS(int s, int numOfV, int* distances);
 	bool connectGraph(int numOfV);
 	int getVertices() { return this->vertices; }
 	void setVer(int ver) { this->vertices = ver; }
-	void clearGraph() {
+	void clearGraph() {  // Clear all the edges in the graph
 		for (int i = 0; i < this->vertices; i++)
 			myGraph[i].clear();
 	}
@@ -59,30 +56,26 @@ void Graph::graph_random_build(double prob) {
 }
 
 void Graph::addEdge(int v, int w) {
-	myGraph[v].push_back(w); // Add w to v’s list.
+	myGraph[v].push_back(w); // Add w to v’s list
 	myGraph[w].push_back(v); // Add v to w’s list
 }
-
-bool Graph::connectGraph(int numOfV) {
+bool Graph::connectGraph(int numOfV) { // Check if the graph is connected
 	int* distances = new int[numOfV];
 	bool isConnected = BFS(0, numOfV, distances);
 	delete[]distances;
 	return isConnected;
 }
-
 bool Graph::BFS(int src, int numOfV, int* distances)
 {
 	list<int> queue;	// Create a queue for BFS
-	bool* visited = new bool[numOfV];
-	// Mark all the vertices as not visited
-	//bool* visited = new bool[s];
-	//initiliaze:
+	bool* visited = new bool[numOfV]; // Mark all the vertices as not visited
+	// BFS start values : initiliaze 
 	for (int i = 0; i < numOfV; i++) {
 		visited[i] = false;
 		distances[i] = -1;
 	}
 
-	// Mark the current node as visited and enqueue it
+	// Mark the current node as visited and enqueue it - Source node
 	visited[src] = true;
 	distances[src] = 0;
 	queue.push_back(src);
@@ -91,7 +84,7 @@ bool Graph::BFS(int src, int numOfV, int* distances)
 	// vertices of a vertex
 	list<int>::iterator i;
 
-	while (!queue.empty())
+	while (!queue.empty()) // Run until the queue is empty
 	{
 		int s = queue.front();
 		queue.pop_front();
@@ -99,7 +92,7 @@ bool Graph::BFS(int src, int numOfV, int* distances)
 		{
 			if (!visited[i])
 			{
-				visited[i] = true;
+				visited[i] = true; // Mark the vertex as visited
 				distances[i] = distances[s] + 1;
 				queue.push_back(i);
 			}
@@ -113,8 +106,7 @@ bool Graph::BFS(int src, int numOfV, int* distances)
 	delete[]visited;
 	return 1;
 }
-
-bool Graph::isIsolated(Graph& graph) {
+bool Graph::isIsolated(Graph& graph) { // Check if there is an isolated vertex in the graph
 	const int ver = graph.getVertices();
 	for (int i = 0; i < ver; i++) {
 		if (myGraph[i].size() == 0)
@@ -123,36 +115,37 @@ bool Graph::isIsolated(Graph& graph) {
 	return false;
 }
 
-int Graph::diameter(Graph& graph) {
+int Graph::diameter(Graph& graph) { // Calculate the graph's diameter
 	int diam = 0, edgeDistance = 0;
 	const int V = graph.getVertices();
 	int* distances = new int[V];
-
-	if (graph.BFS(0, V, distances)) {
+	if (graph.BFS(0, V, distances)) { // First BFS to check if the graph is connected
 		for (int i = 0; i < V; i++) {
 			if (distances[i] > diam)
 				diam = distances[i];
 		}
-		for (int i = 1; i < V; i++) {
+		for (int i = 1; i < V; i++) { // Run BFS on every vertex in the graph
 			graph.BFS(i, V, distances);
 			for (int j = 0; j < V; j++) {
 				if (distances[j] > diam)
-					diam = distances[j];
+					diam = distances[j]; // The diameter is the longest distance from the src vertex
 			}
 		}
 	}
-	else {
+	else { // Diameter of an unconnected graph is infinity
 		diam = 999999999;
 	}
 	delete[]distances;
 	return diam;
 }
 
-void printCSV(int option, double* connectedArr, double* isolatedArr, double* diameterArr) {
+void printCSV(int option, int ver, int amount, double* connectedArr, double* isolatedArr, double* diameterArr) {
 	ofstream resultFile;
 	resultFile.open("results.csv");
+	resultFile << "Vertices" << "," << ver << endl;
+	resultFile << "Amount of graphs for each probability" << "," << amount << endl << endl;
 	switch (option) {
-	case 1:
+	case 1: // Connectivity
 		resultFile << "Probability" << ",";
 		for (int i = 0; i < 10; i++)
 			resultFile << pThresh1[i] << ",";
@@ -163,21 +156,21 @@ void printCSV(int option, double* connectedArr, double* isolatedArr, double* dia
 		resultFile << endl;
 		break;
 
-	case 2:
+	case 2: //Diameter <=2
 		resultFile << "Probability" << ",";
 		for (int i = 0; i < 10; i++)
 			resultFile << pThresh2[i] << ",";
 		resultFile << endl;
-		resultFile << "Diameter=2" << ",";
+		resultFile << "Diameter<=2" << ",";
 		for (int i = 0; i < 10; i++) {
 			resultFile << (double)diameterArr[i] << ",";
 		}
 		break;
 
-	case 3:
+	case 3: // Isolated vertices
 		resultFile << "Probability" << ",";
 		for (int i = 0; i < 10; i++)
-			resultFile << pThresh1[i] << ",";
+			resultFile << pThresh3[i] << ",";
 		resultFile << endl;
 		resultFile << "Isolated vertices" << ",";
 		for (int i = 0; i < 10; i++)
@@ -185,7 +178,7 @@ void printCSV(int option, double* connectedArr, double* isolatedArr, double* dia
 		resultFile << endl;
 		break;
 
-	case 4:
+	case 4: // All
 		resultFile << "Probability" << ",";
 		for (int i = 0; i < 10; i++)
 			resultFile << pThresh1[i] << ",";
@@ -193,22 +186,23 @@ void printCSV(int option, double* connectedArr, double* isolatedArr, double* dia
 		resultFile << "Connected graphs" << ",";
 		for (int i = 0; i < 10; i++)
 			resultFile << (double)connectedArr[i] << ",";
-		resultFile << endl;
-
-		resultFile << "Isolated vertices" << ",";
-		for (int i = 0; i < 10; i++)
-			resultFile << (double)isolatedArr[i] << ",";
 		resultFile << endl << endl;
-
 		resultFile << "Probability" << ",";
 		for (int i = 0; i < 10; i++)
 			resultFile << pThresh2[i] << ",";
 		resultFile << endl;
-
-		resultFile << "Diameter=2" << ",";
+		resultFile << "Diameter<=2" << ",";
 		for (int i = 0; i < 10; i++) {
 			resultFile << (double)diameterArr[i] << ",";
 		}
+		resultFile << endl << endl << "Probability" << ",";
+		for (int i = 0; i < 10; i++)
+			resultFile << pThresh3[i] << ",";
+		resultFile << endl;
+		resultFile << "Isolated vertices" << ",";
+		for (int i = 0; i < 10; i++)
+			resultFile << (double)isolatedArr[i] << ",";
+		resultFile << endl;
 		break;
 	}
 	resultFile.close();
@@ -220,7 +214,7 @@ void calcFunc(int option, int ver, int amount) {
 	int cntConnected = 0, cntDiameter = 0, cntIsolated = 0;
 	double connectedArr[10], isolatedArr[10], diameterArr[10];
 	Graph graph1(ver);
-	if (option == 1) {
+	if (option == 1) { // Connectivity probability
 		for (int i = 0; i < 10; i++) {
 			for (int g = 0; g < amount; g++) {
 				graph1.graph_random_build(pThresh1[i]);
@@ -231,9 +225,9 @@ void calcFunc(int option, int ver, int amount) {
 			connectedArr[i] = (double)cntConnected / (double)amount;
 			cntConnected = 0;
 		}
-		printCSV(1, connectedArr, isolatedArr, diameterArr);
+		printCSV(1, ver, amount, connectedArr, isolatedArr, diameterArr);
 	}
-	else if (option == 2) {
+	else if (option == 2) { // Diameter <=2 probability
 		for (int i = 0; i < 10; i++) {
 			for (int g = 0; g < amount; g++) {
 				graph1.graph_random_build(pThresh2[i]);
@@ -245,12 +239,13 @@ void calcFunc(int option, int ver, int amount) {
 			diameterArr[i] = (double)cntDiameter / (double)amount;
 			cntDiameter = 0;
 		}
-		printCSV(2, connectedArr, isolatedArr, diameterArr);
+		printCSV(2, ver, amount, connectedArr, isolatedArr, diameterArr);
+
 	}
-	else if (option == 3) {
+	else if (option == 3) { // Isolated vertices probability
 		for (int i = 0; i < 10; i++) {
 			for (int g = 0; g < amount; g++) {
-				graph1.graph_random_build(pThresh1[i]);
+				graph1.graph_random_build(pThresh3[i]);
 				cntIsolated = cntIsolated + graph1.isIsolated(graph1);
 				graph1.clearGraph();
 			}
@@ -258,14 +253,13 @@ void calcFunc(int option, int ver, int amount) {
 			isolatedArr[i] = (double)cntIsolated / (double)amount;
 			cntIsolated = 0;
 		}
-		printCSV(3, connectedArr, isolatedArr, diameterArr);
+		printCSV(3, ver, amount, connectedArr, isolatedArr, diameterArr);
 	}
-	else if (option == 4) {
+	else if (option == 4) { // All
 		for (int i = 0; i < 10; i++) {
 			for (int g = 0; g < amount; g++) {
 				graph1.graph_random_build(pThresh1[i]);
 				cntConnected = cntConnected + graph1.connectGraph(ver);
-				cntIsolated = cntIsolated + graph1.isIsolated(graph1);
 				graph1.clearGraph();
 			}
 
@@ -275,6 +269,11 @@ void calcFunc(int option, int ver, int amount) {
 					cntDiameter++;
 				graph1.clearGraph();
 			}
+			for (int g = 0; g < amount; g++) {
+				graph1.graph_random_build(pThresh3[i]);
+				cntIsolated = cntIsolated + graph1.isIsolated(graph1);
+				graph1.clearGraph();
+			}
 			cout << ".";
 			connectedArr[i] = (double)cntConnected / (double)amount;
 			isolatedArr[i] = (double)cntIsolated / (double)amount;
@@ -283,31 +282,31 @@ void calcFunc(int option, int ver, int amount) {
 			cntIsolated = 0;
 			cntDiameter = 0;
 		}
-		printCSV(4, connectedArr, isolatedArr, diameterArr);
+		printCSV(4, ver, amount, connectedArr, isolatedArr, diameterArr);
 	}
 }
 
 void main() {
 	srand(time(NULL));
-
 	int ver, amount, option;
-	cout << "###############################################################################################################" << endl;
-	cout << "    **************************** Welcome to the Erdos - Renyi Graph Generator: ****************************    " << endl;
-	cout << "###############################################################################################################" << endl << endl;
+	cout << "#######################################################################################################################" << endl;
+	cout << "        **************************** Welcome to the Erdos - Renyi Graph Generator: ****************************    " << endl;
+	cout << "#######################################################################################################################" << endl << endl;
 	cout << "Select amount of graph vertices:";
 	cin >> ver;
-	cout << "Select amount of graphs to generate:";
+	cout << "Select amount of graphs to generate for each probability:";
 	cin >> amount;
 	cout << endl;
-	cout << "###############################################################################################################" << endl;
+	cout << "#######################################################################################################################" << endl;
 	cout << "The probabilities were calculted according to 1000 vertices graph" << endl;
-	cout << "Probabilities for Connectivity & Isolated: 0.0048,0.0053,0.0059,0.0065,0.0069,0.0072,0.008,0.009,0.01,0.01401" << endl;
+	cout << "Probabilities for Connectivity: 0.0048,0.0053,0.0059,0.0065,0.0069,0.0072,0.008,0.009,0.01,0.01401" << endl;
 	cout << "Probabilities for Diameter: 0.091,0.1,0.103,0.115,0.1175,0.12,0.125,0.13,0.135,0.14" << endl;
-	cout << "###############################################################################################################" << endl << endl;
+	cout << "Probabilities for Isolated vertices: 0.0046,0.005343,0.005599,0.006631,0.00691,0.007231,0.0084,0.0093,0.0123,0.01469" << endl;
+	cout << "#######################################################################################################################" << endl << endl;
 	cout << "Choose an option:" << endl;
 	cout << "1) Connectivity " << endl;
 	cout << "2) Diameter" << endl;
-	cout << "3) Isolated Vertex" << endl;
+	cout << "3) Isolated Vertices" << endl;
 	cout << "4) All options in order" << endl << endl;
 	cout << "Your choice:";
 	cin >> option;
